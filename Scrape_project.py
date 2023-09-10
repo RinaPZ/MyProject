@@ -1,0 +1,58 @@
+#Scrape laptop prices and discounts from online shopping website in Kosovo
+
+from bs4 import BeautifulSoup
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+Name = []  #list Product nam
+Price = [] #list Price of the product
+Sale = []  #list discount percentage
+
+r = requests.get('https://gjirafamall.com/teknologji-1/kompjuter-laptop-server/laptop-6/per-biznes-3') # Online shopping website in Kosovo
+soup = BeautifulSoup(r.content, 'html')
+
+
+
+    
+for each in soup.find_all('article'):   #'div',attrs={'class':'art-info-block'}
+     prices = each.find('span', attrs={'class':'mr-2 art-price art-price--offer'})
+     products = each.find('div', attrs={'class':'art-name mt-2'})
+     sale = each.find('span', attrs={'class':'art-sale-percentage ml-1'})
+
+     if products is None:
+       Name.append(None)
+     else:
+       Name.append(products.text.strip())   
+     if prices is None:
+        Price.append(None)
+     else:
+        Price.append(prices.text.strip())
+     if sale is None:
+         Sale.append(None)
+     else:
+        Sale.append(sale.text.strip())   
+
+
+  
+
+# Structuring and storing data
+df = pd.DataFrame({'Name': Name, 'Price': Price, 'Sale': Sale}) 
+print(df.to_string()) #convert to strig
+
+# Output the DataFrame to CSV file
+df.to_csv('products1.csv', index = False)
+
+
+# Data Visualization
+df2 = pd.read_csv("products1.csv")
+df2 = df2.astype(str)
+
+
+plt.xlabel("Sale")
+plt.ylabel("Price")
+plt.title("Price vs Sale")
+
+plt.scatter(df2.Sale, df2.Price, marker="o", c = 'red', alpha = 1)  
+plt.show()
